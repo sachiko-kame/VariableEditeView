@@ -70,6 +70,7 @@ class ViewController: UIViewController {
         UIView.animate(withDuration: duration, animations: {
             self.variableEditeView.frame.origin.y = self.ViewFrame.size.height - editeViewHeight - self.activeKeyBordHeight
             self.variableEditeView.frame.size.height = editeViewHeight
+            self.variableEditeView.editTextView.selectedRange.location = self.variableEditeView.editTextView.text.utf16.count
         },completion:nil)
         
     }
