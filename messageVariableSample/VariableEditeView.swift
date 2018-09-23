@@ -21,7 +21,7 @@ class VariableEditeView: UIView {
     var editTextView:UITextView = UITextView()
     
     let buttonHeight:CGFloat = 30
-    let textViewPadding:CGFloat = 3
+    let textViewPadding:CGFloat = 0
     let textViewTopPadding:CGFloat = 3
     
     override init(frame: CGRect) {
@@ -64,12 +64,11 @@ class VariableEditeView: UIView {
         
     }
     
-    func nowOverallHeight(editTextVieHeight:CGFloat) -> CGFloat{
-        var TextVieHeight:CGFloat = editTextVieHeight
-        if(TextVieHeight == 0){//初期
-            TextVieHeight = self.frame.size.height - buttonHeight
+    func nowAllHeight(editTextVieHeight:CGFloat) -> CGFloat{
+        var height:CGFloat = buttonHeight + editTextVieHeight + textViewTopPadding
+        if(height < VariableEditeView.height){
+            height = VariableEditeView.height
         }
-        let height:CGFloat = buttonHeight + TextVieHeight
         return height
     }
     

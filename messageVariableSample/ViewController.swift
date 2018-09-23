@@ -17,21 +17,16 @@ class ViewController: UIViewController {
         return ViewFrame.size.height - VariableEditeView.height
     }
     
-    /*
-     現在のKeyBordの高さの保持
-     */
     var activeKeyBordHeight:CGFloat = 0
+    var nowlineNum:CGFloat = 0
+    let maxLine:CGFloat = 4 //-1した数がまで隠れず書ける
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        /*
-         一番下に来るようにSet
-         */
         variableEditeView = VariableEditeView(frame: CGRect(x: 0, y: firstaddCardEditeViewY, width: ViewFrame.size.width, height: VariableEditeView.height))
-        
+    
         variableEditeView.editTextView.delegate = self
-        
         self.view.addSubview(variableEditeView)
         
     }
@@ -62,31 +57,50 @@ class ViewController: UIViewController {
         self.activeKeyBordHeight = keyboardScreenEndFrame.height
         let duration:TimeInterval = notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as! Double
         
-        let height = self.variableEditeView.editTextView.sizeThatFits(CGSize(width: self.variableEditeView.editTextView.frame.size.width, height: CGFloat.greatestFiniteMagnitude)).height
-        
-        let CardEditeViewHeight = self.variableEditeView.nowOverallHeight(editTextVieHeight:height)
+        var editeViewHeight:CGFloat = 0
+    
+        if(self.nowlineNum > maxLine){
+            editeViewHeight = self.maxVariableEditeViewHeight()
+            self.variableEditeView.editTextView.isScrollEnabled = true
+        }else{
+            editeViewHeight = self.nowEditeViewHeight()
+            self.variableEditeView.editTextView.isScrollEnabled = false
+        }
         
         UIView.animate(withDuration: duration, animations: {
-            self.variableEditeView.frame.origin.y = self.ViewFrame.size.height - CardEditeViewHeight - keyboardScreenEndFrame.height
-            self.variableEditeView.frame.size.height = CardEditeViewHeight
+            self.variableEditeView.frame.origin.y = self.ViewFrame.size.height - editeViewHeight - self.activeKeyBordHeight
+            self.variableEditeView.frame.size.height = editeViewHeight
         },completion:nil)
         
+    }
+    
+    func maxVariableEditeViewHeight() -> CGFloat {
+        let maxEditTextViewlineHeight:CGFloat = (self.variableEditeView.editTextView.font?.lineHeight)! * maxLine
+        let VariableEditeViewHeight:CGFloat = self.variableEditeView.nowAllHeight(editTextVieHeight:maxEditTextViewlineHeight)
+        return VariableEditeViewHeight
+    }
+    
+    func nowEditeViewHeight() -> CGFloat {
+        let height = self.variableEditeView.editTextView.sizeThatFits(CGSize(width: self.variableEditeView.editTextView.frame.size.width, height: CGFloat.greatestFiniteMagnitude)).height
+        let VariableEditeViewHeight:CGFloat = self.variableEditeView.nowAllHeight(editTextVieHeight:height)
+        return VariableEditeViewHeight
     }
 }
 
 
 extension ViewController:UITextViewDelegate{
     func textViewDidChange(_ textView: UITextView){
-        let height = textView.sizeThatFits(CGSize(width: textView.frame.size.width, height: CGFloat.greatestFiniteMagnitude)).height
-        let variableEditeViewHeight = variableEditeView.nowOverallHeight(editTextVieHeight:height)
+       
+        self.variableEditeView.editTextView.isScrollEnabled = true
         let textViewNumLines = textView.contentSize.height / (textView.font?.lineHeight)!
+        self.nowlineNum = floor(textViewNumLines)
         
-        if(textViewNumLines > 4){
+        if(self.nowlineNum > maxLine){
             self.variableEditeView.editTextView.isScrollEnabled = true
         }else{
             variableEditeView.editTextView.isScrollEnabled = false
-            self.variableEditeView.frame.origin.y = ViewFrame.size.height - variableEditeViewHeight - self.activeKeyBordHeight
-            self.variableEditeView.frame.size.height = variableEditeViewHeight
+            self.variableEditeView.frame.origin.y = ViewFrame.size.height - nowEditeViewHeight() - self.activeKeyBordHeight
+            self.variableEditeView.frame.size.height = nowEditeViewHeight()
         }
     }
 }
